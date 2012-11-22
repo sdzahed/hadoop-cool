@@ -2307,8 +2307,8 @@ Runnable, TaskTrackerMXBean {
 				//scan the integer value from temperature reading, ONLY if the reading is a cpu-core reading
 				if(tokens[0].trim().equals("Temp"))
 				{	
-					LOG.debug("temp. reading tag:" + tokens[0]);
-					LOG.debug("temp. reading value::" + tokens[1]);
+					LOG.info("temp. reading tag:" + tokens[0]);
+					LOG.info("temp. reading value::" + tokens[1]);
 					Scanner scan = new Scanner(tokens[1]);
 					temperatureReadings.add(scan.nextInt());
 				}
