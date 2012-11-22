@@ -1805,7 +1805,18 @@ Runnable, TaskTrackerMXBean {
 		}
 
 		//start: added by nsuneja
-		status.setTemperatureReadings(getCurrentTemperatureReadings());
+		
+		List<Integer> temp_readings = getCurrentTemperatureReadings();
+		
+		//Iterate over the list and print the temp. readings
+		for(Iterator<Integer> i=temp_readings.iterator();i.hasNext();)
+		{
+			int reading = i.next();
+			LOG.info("reading:" + reading);
+		}
+		
+		status.setTemperatureReadings(temp_readings);
+		
 		//end: added by nsuneja
 
 
@@ -2283,7 +2294,7 @@ Runnable, TaskTrackerMXBean {
 		//Execute and parse the system command to extract the readings
 		try 
 		{ 
-			Process p=Runtime.getRuntime().exec("sudo /usr/bin/ipmitool sdr list | grep Temp"); 
+			Process p=Runtime.getRuntime().exec("sudo /usr/bin/ipmitool sdr list"); 
 			p.waitFor(); 
 			
 			BufferedReader reader=new BufferedReader(new InputStreamReader(p.getInputStream())); 
@@ -2292,12 +2303,12 @@ Runnable, TaskTrackerMXBean {
 			while(line!=null) 
 			{
 				String[] tokens = line.split("|");
-				LOG.info("temp. reading tag:" + tokens[0]);
-				LOG.info("temp. reading value::" + tokens[1]);
-		
+						
 				//scan the integer value from temperature reading, ONLY if the reading is a cpu-core reading
 				if(tokens[0].trim().equals("Temp"))
 				{	
+					LOG.debug("temp. reading tag:" + tokens[0]);
+					LOG.debug("temp. reading value::" + tokens[1]);
 					Scanner scan = new Scanner(tokens[1]);
 					temperatureReadings.add(scan.nextInt());
 				}
