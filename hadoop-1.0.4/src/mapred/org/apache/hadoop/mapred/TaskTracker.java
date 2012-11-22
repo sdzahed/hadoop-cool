@@ -2302,7 +2302,7 @@ Runnable, TaskTrackerMXBean {
 			
 			while(line!=null) 
 			{
-				String[] tokens = line.split("|");
+				String[] tokens = line.split("\\|");
 						
 				//scan the integer value from temperature reading, ONLY if the reading is a cpu-core reading
 				if(tokens[0].trim().equals("Temp"))
