@@ -2276,6 +2276,8 @@ Runnable, TaskTrackerMXBean {
 	 */
 	private List<Integer> getCurrentTemperatureReadings()
 	{
+		LOG.info("-----------------------------Getting Temperature Readings----------------------------------");
+		
 		List<Integer> temperatureReadings = new ArrayList<Integer>();
 		
 		//Execute and parse the system command to extract the readings
@@ -2307,10 +2309,12 @@ Runnable, TaskTrackerMXBean {
 		catch(IOException e1) 
 		{
 			e1.printStackTrace();
+			LOG.info(e1.getMessage(),e1);
 		} 
 		catch(InterruptedException e2) 
 		{
 			e2.printStackTrace();
+			LOG.info(e2.getMessage(),e2);
 		} 
 		
 		return temperatureReadings;
