@@ -2287,7 +2287,7 @@ Runnable, TaskTrackerMXBean {
 	 */
 	private List<Integer> getCurrentTemperatureReadings()
 	{
-		LOG.info("-----------------------------Getting Temperature Readings----------------------------------");
+		LOG.info("-----------------------------start:Getting Temperature Readings----------------------------------");
 		
 		List<Integer> temperatureReadings = new ArrayList<Integer>();
 		
@@ -2302,8 +2302,10 @@ Runnable, TaskTrackerMXBean {
 			
 			while(line!=null) 
 			{
+				
 				String[] tokens = line.split("\\|");
-						
+				LOG.info(tokens[0]);		
+				
 				//scan the integer value from temperature reading, ONLY if the reading is a cpu-core reading
 				if(tokens[0].trim().equals("Temp"))
 				{	
@@ -2327,6 +2329,9 @@ Runnable, TaskTrackerMXBean {
 			e2.printStackTrace();
 			LOG.info(e2.getMessage(),e2);
 		} 
+		
+		LOG.info("-----------------------------end:Getting Temperature Readings----------------------------------");
+
 		
 		return temperatureReadings;
 
