@@ -2300,11 +2300,16 @@ Runnable, TaskTrackerMXBean {
 			BufferedReader reader=new BufferedReader(new InputStreamReader(p.getInputStream())); 
 			String line=reader.readLine(); 			
 			
+			if(line == null)
+			{
+				LOG.info("Empty input!");
+			}
+			
 			while(line!=null) 
 			{
-				
+				LOG.info("line:" + line);
 				String[] tokens = line.split("\\|");
-				LOG.info(tokens[0]);		
+				LOG.info("token:" + tokens[0]);		
 				
 				//scan the integer value from temperature reading, ONLY if the reading is a cpu-core reading
 				if(tokens[0].trim().equals("Temp"))
@@ -2322,12 +2327,12 @@ Runnable, TaskTrackerMXBean {
 		catch(IOException e1) 
 		{
 			e1.printStackTrace();
-			LOG.info(e1.getMessage(),e1);
+			LOG.error(e1.getMessage(),e1);
 		} 
 		catch(InterruptedException e2) 
 		{
 			e2.printStackTrace();
-			LOG.info(e2.getMessage(),e2);
+			LOG.error(e2.getMessage(),e2);
 		} 
 		
 		LOG.info("-----------------------------end:Getting Temperature Readings----------------------------------");
