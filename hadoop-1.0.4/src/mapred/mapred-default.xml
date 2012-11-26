@@ -302,6 +302,23 @@
 </property>
 
 <property>
+  <name>mapred.jobtracker.CoolScheduling</name>
+  <value>false</value>
+  <description> Enable this to activate Cool Scheduling. With Cool Scheduling
+  the JobTracker tries to avoid allocating tasks to hosts that are at a certain
+  threshold above the average cluster temperature.
+  </description>
+</property>
+
+<property>
+  <name>mapred.jobtracker.CoolScheduling.Threshold</name>
+  <value>25.0f</value>
+  <description>Threshold percent above cluster average temperature
+  to classify a host as too hot.
+  </description>
+</property>
+
+<property>
   <name>mapred.map.max.attempts</name>
   <value>4</value>
   <description>Expert: The maximum number of attempts per map task.

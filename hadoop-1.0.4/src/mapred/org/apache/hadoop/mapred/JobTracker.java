@@ -2160,6 +2160,9 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
   private QueueManager queueManager;
 
+  private Map<String, Float> trackerTemperatures = new HashMap<String, Float> ();
+  private float clusterAvgTemperature = 0.0f;
+
   /**
    * Start the JobTracker process, listen on the indicated port
    */
@@ -3393,9 +3396,12 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
       if (taskTrackerStatus == null) {
         LOG.warn("Unknown task tracker polling; ignoring: " + trackerName);
       } else {
-        List<Task> tasks = getSetupAndCleanupTasks(taskTrackerStatus);
-        if (tasks == null ) {
-          tasks = taskScheduler.assignTasks(taskTrackers.get(trackerName));
+        List<Task> tasks = null;
+        if (!isTaskTrackerTooHot(trackerName, taskTrackerStatus)) {
+            tasks = getSetupAndCleanupTasks(taskTrackerStatus);
+            if (tasks == null ) {
+                tasks = taskScheduler.assignTasks(taskTrackers.get(trackerName));
+            }
         }
         if (tasks != null) {
           for (Task task : tasks) {
@@ -3461,6 +3467,24 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
                                                 NUM_HEARTBEATS_IN_SECOND)),
                                 HEARTBEAT_INTERVAL_MIN) ;
     return heartbeatInterval;
+  }
+
+  private boolean isTaskTrackerTooHot (String trackerName,
+                                       TaskTrackerStatus status) {
+        if (conf.getBoolean("mapred.jobtracker.CoolScheduling", false)) {
+            float heatThreshold = conf.getFloat(
+                        "mapred.jobtracker.CoolScheduling.Threshold", 25.0f);
+            float nodeTemp = status.getTemperature();
+            float heatDiff = nodeTemp <= clusterAvgTemperature ? 0.0f : 
+                                         nodeTemp - clusterAvgTemperature;
+
+            /* TODO can the avg temp be 0? Moreover what happens to the average
+               when a node goes down or is blacklisted? Shouldnt that entry be
+               removed from the average temp calculation? */
+            return heatDiff > 0 && clusterAvgTemperature > 0 &&
+                    (heatDiff / clusterAvgTemperature * 100 >= heatThreshold);
+        }
+        return false;
   }
 
   /**
@@ -3627,12 +3651,29 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
   }
 
   private void updateNodeHealthStatus(TaskTrackerStatus trackerStatus,
+                                      String trackerName,
                                       long timeStamp) {
     TaskTrackerHealthStatus status = trackerStatus.getHealthStatus();
     synchronized (faultyTrackers) {
       faultyTrackers.setNodeHealthStatus(trackerStatus.getHost(), 
           status.isNodeHealthy(), status.getHealthReport(), timeStamp);
     }
+
+    // Update Heat Data
+    float oldTemp;
+    if (trackerTemperatures.containsKey(trackerName)) {
+        oldTemp = trackerTemperatures.get(trackerName);
+    } else {
+        oldTemp = 0.0f;
+    }
+
+    /* TODO this is a crude way to get the number of trackers and it might
+       be wrong. Figure out the correct way! */
+    float newTemp = trackerStatus.getTemperature();
+    clusterAvgTemperature = (clusterAvgTemperature * 
+                            trackerTemperatures.length - oldTemp + newTemp) /
+                            (trackerTemperatures.length + (oldTemp > 0 ? 0 : 1));
+    trackerTemperatures.put(trackerName, newTemp);
   }
     
   /**
