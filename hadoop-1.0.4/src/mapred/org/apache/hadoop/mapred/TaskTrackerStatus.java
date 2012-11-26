@@ -55,6 +55,23 @@ public class TaskTrackerStatus implements Writable {
   private int maxReduceTasks;
   private TaskTrackerHealthStatus healthStatus;
    
+  
+  //start: added by nsuneja
+  private List<Integer> coreTemperatureReadings;
+  
+  public void setTemperatureReadings(List<Integer> coreTemperatureReadings)
+  {
+	  this.coreTemperatureReadings=coreTemperatureReadings;
+  }
+  
+  public List<Integer> getTemperatureReadings()
+  {
+	  return this.coreTemperatureReadings;
+  }
+  
+  //end: added by nsuneja
+  
+  
   public static final int UNAVAILABLE = -1;
   /**
    * Class representing a collection of resources on this tasktracker.
