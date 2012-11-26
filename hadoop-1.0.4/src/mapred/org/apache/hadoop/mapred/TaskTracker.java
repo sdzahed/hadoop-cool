@@ -2294,8 +2294,8 @@ Runnable, TaskTrackerMXBean {
 		//Execute and parse the system command to extract the readings
 		try 
 		{ 
-			//Process p=Runtime.getRuntime().exec("sudo /usr/bin/ipmitool sdr list"); 
-			Process p=Runtime.getRuntime().exec("id"); 
+			Process p=Runtime.getRuntime().exec("sudo /usr/bin/ipmitool sdr list"); 
+			//Process p=Runtime.getRuntime().exec("id"); 
 
 			p.waitFor(); 
 			

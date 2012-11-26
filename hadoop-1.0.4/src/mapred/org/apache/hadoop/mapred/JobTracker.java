@@ -3390,14 +3390,20 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
     HeartbeatResponse response = new HeartbeatResponse(newResponseId, null);
     List<TaskTrackerAction> actions = new ArrayList<TaskTrackerAction>();
     boolean isBlacklisted = faultyTrackers.isBlacklisted(status.getHost());
+    
     // Check for new tasks to be executed on the tasktracker
-    if (recoveryManager.shouldSchedule() && acceptNewTasks && !isBlacklisted) {
+    if (recoveryManager.shouldSchedule() && acceptNewTasks && !isBlacklisted) 
+    {
       TaskTrackerStatus taskTrackerStatus = getTaskTrackerStatus(trackerName);
-      if (taskTrackerStatus == null) {
+      if (taskTrackerStatus == null) 
+      {
         LOG.warn("Unknown task tracker polling; ignoring: " + trackerName);
-      } else {
+      } 
+      else 
+      {
         List<Task> tasks = null;
-        if (!isTaskTrackerTooHot(trackerName, taskTrackerStatus)) {
+        if (!isTaskTrackerTooHot(taskTrackerStatus)) 
+        {
             tasks = getSetupAndCleanupTasks(taskTrackerStatus);
             if (tasks == null ) {
                 tasks = taskScheduler.assignTasks(taskTrackers.get(trackerName));
@@ -3469,12 +3475,12 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
     return heartbeatInterval;
   }
 
-  private boolean isTaskTrackerTooHot (String trackerName,
-                                       TaskTrackerStatus status) {
-        if (conf.getBoolean("mapred.jobtracker.CoolScheduling", false)) {
-            float heatThreshold = conf.getFloat(
-                        "mapred.jobtracker.CoolScheduling.Threshold", 25.0f);
-            float nodeTemp = status.getTemperature();
+  private boolean isTaskTrackerTooHot (TaskTrackerStatus status) 
+  {
+        if (conf.getBoolean("mapred.jobtracker.CoolScheduling", false)) 
+        {
+            float heatThreshold = conf.getFloat("mapred.jobtracker.CoolScheduling.Threshold", 25.0f);
+            float nodeTemp =  calculateAverageTemperatureReading( status.getTemperatureReadings());
             float heatDiff = nodeTemp <= clusterAvgTemperature ? 0.0f : 
                                          nodeTemp - clusterAvgTemperature;
 
@@ -3650,8 +3656,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
     }
   }
 
-  private void updateNodeHealthStatus(TaskTrackerStatus trackerStatus,
-                                      String trackerName,
+  private void updateNodeHealthStatus(TaskTrackerStatus trackerStatus,                                  
                                       long timeStamp) {
     TaskTrackerHealthStatus status = trackerStatus.getHealthStatus();
     synchronized (faultyTrackers) {
@@ -3661,19 +3666,35 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
     // Update Heat Data
     float oldTemp;
-    if (trackerTemperatures.containsKey(trackerName)) {
-        oldTemp = trackerTemperatures.get(trackerName);
+    if (trackerTemperatures.containsKey(trackerStatus.getTrackerName())) {
+        oldTemp = trackerTemperatures.get(trackerStatus.getTrackerName());
     } else {
         oldTemp = 0.0f;
     }
 
     /* TODO this is a crude way to get the number of trackers and it might
        be wrong. Figure out the correct way! */
-    float newTemp = trackerStatus.getTemperature();
+    float newTemp = calculateAverageTemperatureReading(trackerStatus.getTemperatureReadings());
     clusterAvgTemperature = (clusterAvgTemperature * 
-                            trackerTemperatures.length - oldTemp + newTemp) /
-                            (trackerTemperatures.length + (oldTemp > 0 ? 0 : 1));
-    trackerTemperatures.put(trackerName, newTemp);
+                            trackerTemperatures.size() - oldTemp + newTemp) /
+                            (trackerTemperatures.size() + (oldTemp > 0 ? 0 : 1));
+    
+    trackerTemperatures.put(trackerStatus.getTrackerName(), newTemp);
+  }
+  
+  /*
+   * Calculates the average temperature reading of all the tasktracker cores
+   */
+  private float calculateAverageTemperatureReading(List<Integer> readings)
+  {
+	  int temperatureSum=0;
+	  
+	  for(Iterator<Integer> i=readings.iterator();i.hasNext();)
+	  {
+		  temperatureSum = temperatureSum + i.next();	  
+	  }
+	  
+	  return temperatureSum/readings.size();
   }
     
   /**
