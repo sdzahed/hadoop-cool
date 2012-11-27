@@ -17,6 +17,8 @@
  */
 package org.apache.hadoop.mapred;
 
+import TemperatureReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +30,8 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1773,7 +1777,8 @@ Runnable, TaskTrackerMXBean {
 	 * @return false if the tracker was unknown
 	 * @throws IOException
 	 */
-	HeartbeatResponse transmitHeartBeat(long now) throws IOException {
+	HeartbeatResponse transmitHeartBeat(long now) throws IOException 
+	{
 		// Send Counters in the status once every COUNTER_UPDATE_INTERVAL
 		boolean sendCounters;
 		if (now > (previousUpdate + COUNTER_UPDATE_INTERVAL)) {
@@ -1804,8 +1809,7 @@ Runnable, TaskTrackerMXBean {
 					"' with reponseId '" + heartbeatResponseId);
 		}
 
-		//start: added by nsuneja
-		
+		//start: added by nsuneja	
 		List<Integer> temp_readings = getCurrentTemperatureReadings();
 		
 		//Iterate over the list and print the temp. readings
@@ -2289,7 +2293,7 @@ Runnable, TaskTrackerMXBean {
 	{
 		LOG.info("-----------------------------start:Getting Temperature Readings----------------------------------");
 		
-		List<Integer> temperatureReadings = new ArrayList<Integer>();
+		/*List<Integer> temperatureReadings = new ArrayList<Integer>();
 		
 		//Execute and parse the system command to extract the readings
 		try 
@@ -2336,6 +2340,29 @@ Runnable, TaskTrackerMXBean {
 			e2.printStackTrace();
 			LOG.error(e2.getMessage(),e2);
 		} 
+		*/
+		
+		
+		/*
+		 * 
+		 * Till the ipmitool issue is resolved, use RMI to extract the temperature
+		 */
+		
+		List<Integer> temperatureReadings=null;
+		try 
+        {
+            Registry registry = LocateRegistry.getRegistry(null);
+            TemperatureReader stub = (TemperatureReader) registry.lookup("temperatureReader");
+            
+            temperatureReadings = stub.getCurrentTemperatureReadings();    
+        } 
+		catch (Exception e) 
+        {
+            System.err.println("Client exception: " + e.toString());
+            e.printStackTrace();
+        }
+		
+		
 		
 		LOG.info("-----------------------------end:Getting Temperature Readings----------------------------------");
 
