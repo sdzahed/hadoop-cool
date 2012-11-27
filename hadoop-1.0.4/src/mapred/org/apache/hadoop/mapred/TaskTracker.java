@@ -17,7 +17,6 @@
  */
 package org.apache.hadoop.mapred;
 
-import TemperatureReader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -113,6 +112,8 @@ import org.apache.hadoop.mapreduce.security.TokenCache;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.metrics2.util.MBeans;
 import org.apache.hadoop.security.Credentials;
+
+import edu.sunysb.cs.cse602.TemperatureReader;
 
 /*******************************************************
  * TaskTracker is a process that starts and tracks MR Tasks
@@ -2358,7 +2359,7 @@ Runnable, TaskTrackerMXBean {
         } 
 		catch (Exception e) 
         {
-            System.err.println("Client exception: " + e.toString());
+            LOG.error("Client exception: " + e.toString());
             e.printStackTrace();
         }
 		
