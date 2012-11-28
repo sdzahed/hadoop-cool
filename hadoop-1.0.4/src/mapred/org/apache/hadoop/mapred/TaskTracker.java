@@ -113,7 +113,7 @@ import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.metrics2.util.MBeans;
 import org.apache.hadoop.security.Credentials;
 
-import edu.sunysb.cs.cse602.TemperatureReader;
+//import edu.sunysb.cs.cse602.TemperatureReader;
 
 /*******************************************************
  * TaskTracker is a process that starts and tracks MR Tasks
@@ -2294,14 +2294,12 @@ Runnable, TaskTrackerMXBean {
 	{
 		LOG.info("-----------------------------start:Getting Temperature Readings----------------------------------");
 		
-		/*List<Integer> temperatureReadings = new ArrayList<Integer>();
+		List<Integer> temperatureReadings = new ArrayList<Integer>();
 		
 		//Execute and parse the system command to extract the readings
 		try 
 		{ 
-			Process p=Runtime.getRuntime().exec("sudo /usr/bin/ipmitool sdr list"); 
-			//Process p=Runtime.getRuntime().exec("id"); 
-
+			Process p=Runtime.getRuntime().exec("ssh -t -t localhost sudo /usr/bin/ipmitool sdr list"); 
 			p.waitFor(); 
 			
 			BufferedReader reader=new BufferedReader(new InputStreamReader(p.getInputStream())); 
@@ -2341,7 +2339,7 @@ Runnable, TaskTrackerMXBean {
 			e2.printStackTrace();
 			LOG.error(e2.getMessage(),e2);
 		} 
-		*/
+		
 		
 		
 		/*
@@ -2349,7 +2347,7 @@ Runnable, TaskTrackerMXBean {
 		 * Till the ipmitool issue is resolved, use RMI to extract the temperature
 		 */
 		
-		List<Integer> temperatureReadings=null;
+		/*List<Integer> temperatureReadings=null;
 		try 
         {
             Registry registry = LocateRegistry.getRegistry(null);
@@ -2361,7 +2359,7 @@ Runnable, TaskTrackerMXBean {
         {
             LOG.error("Client exception: " + e.toString());
             e.printStackTrace();
-        }
+        }*/
 		
 		
 		
