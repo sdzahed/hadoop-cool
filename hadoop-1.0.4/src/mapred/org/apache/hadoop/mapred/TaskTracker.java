@@ -2322,20 +2322,20 @@ Runnable, TaskTrackerMXBean {
 			
 			if(line == null)
 			{
-				LOG.info("Empty input!");
+				LOG.debug("Empty input!");
 			}
 			
 			while(line!=null) 
 			{
-				LOG.info("line:" + line);
+				LOG.debug("line:" + line);
 				String[] tokens = line.split("\\|");
-				LOG.info("token:" + tokens[0]);		
+				LOG.debug("token:" + tokens[0]);		
 				
 				//scan the integer value from temperature reading, ONLY if the reading is a cpu-core reading
 				if(tokens[0].trim().equals("Temp"))
 				{	
-					LOG.info("temp. reading tag:" + tokens[0]);
-					LOG.info("temp. reading value::" + tokens[1]);
+					LOG.debug("temp. reading tag:" + tokens[0]);
+					LOG.debug("temp. reading value::" + tokens[1]);
 					Scanner scan = new Scanner(tokens[1]);
 					temperatureReadings.add(scan.nextInt());
 				}

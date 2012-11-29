@@ -3477,8 +3477,13 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
   private boolean isTaskTrackerTooHot (TaskTrackerStatus status) 
   {
+	    LOG.info("--------------------Inside isTrackerTooHot------------");
         if (conf.getBoolean("mapred.jobtracker.CoolScheduling", false)) 
         {
+        	LOG.info("--------------------Cool Scheduling is ON---------------");
+        	LOG.info("-----------------Cluster Average Temp.::" + clusterAvgTemperature + "-------------------");
+        	
+        	
             float heatThreshold = conf.getFloat("mapred.jobtracker.CoolScheduling.Threshold", 25.0f);
             float nodeTemp =  calculateAverageTemperatureReading( status.getTemperatureReadings());
             float heatDiff = nodeTemp <= clusterAvgTemperature ? 0.0f : 
