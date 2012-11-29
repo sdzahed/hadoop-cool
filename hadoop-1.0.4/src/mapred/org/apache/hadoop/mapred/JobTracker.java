@@ -3320,6 +3320,9 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
                 " with responseId: " + responseId);
     }
 
+    //printing the list
+    LOG.info("-----------------"+ status.getTemperatureReadings().size()+ "-------------------------");
+    
     // Make sure heartbeat is from a tasktracker allowed by the jobtracker.
     if (!acceptTaskTracker(status)) {
       throw new DisallowedTaskTrackerException(status);
