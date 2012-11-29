@@ -1820,7 +1820,7 @@ Runnable, TaskTrackerMXBean {
 			LOG.info("reading:" + reading);
 		}
 		
-		status.setTemperatureReadings(temp_readings);
+		status.setTemperatureReading(calculateAverageTemperatureReading(temp_readings));
 		
 		//end: added by nsuneja
 
@@ -2342,6 +2342,7 @@ Runnable, TaskTrackerMXBean {
 				
 				line=reader.readLine(); 
 			} 
+					
 
 		} 
 		catch(IOException e1) 
@@ -2385,6 +2386,22 @@ Runnable, TaskTrackerMXBean {
 
 	}
 
+	
+	/*
+	   * Calculates the average temperature reading of all the tasktracker cores
+	   */
+	  private float calculateAverageTemperatureReading(List<Integer> readings)
+	  {
+		  int temperatureSum=0;
+		  
+		  for(Iterator<Integer> i=readings.iterator();i.hasNext();)
+		  {
+			  temperatureSum = temperatureSum + i.next();	  
+		  }
+		  
+		  return temperatureSum/readings.size();
+	  }
+	
 	//end: added by nsuneja
 
 

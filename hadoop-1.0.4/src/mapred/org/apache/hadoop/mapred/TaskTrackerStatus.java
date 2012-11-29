@@ -57,16 +57,16 @@ public class TaskTrackerStatus implements Writable {
    
   
   //start: added by nsuneja
-  private List<Integer> coreTemperatureReadings;
+  private float coreAverageTemperatureReading;
   
-  public void setTemperatureReadings(List<Integer> coreTemperatureReadings)
+  public void setTemperatureReading(float coreAverageTemperatureReading)
   {
-	  this.coreTemperatureReadings=coreTemperatureReadings;
+	  this.coreAverageTemperatureReading=coreAverageTemperatureReading;
   }
   
-  public List<Integer> getTemperatureReadings()
+  public float getTemperatureReading()
   {
-	  return this.coreTemperatureReadings;
+	  return this.coreAverageTemperatureReading;
   }
   
   //end: added by nsuneja
@@ -665,7 +665,8 @@ public class TaskTrackerStatus implements Writable {
   ///////////////////////////////////////////
   // Writable
   ///////////////////////////////////////////
-  public void write(DataOutput out) throws IOException {
+  public void write(DataOutput out) throws IOException 
+  {
     Text.writeString(out, trackerName);
     Text.writeString(out, host);
     out.writeInt(httpPort);
@@ -675,19 +676,28 @@ public class TaskTrackerStatus implements Writable {
     resStatus.write(out);
     out.writeInt(taskReports.size());
 
+    //writing the temperature value
+    out.writeFloat(coreAverageTemperatureReading);
+    
     for (TaskStatus taskStatus : taskReports) {
       TaskStatus.writeTaskStatus(out, taskStatus);
     }
     getHealthStatus().write(out);
   }
 
-  public void readFields(DataInput in) throws IOException {
+  public void readFields(DataInput in) throws IOException 
+  {
+	  
     this.trackerName = Text.readString(in);
     this.host = Text.readString(in);
     this.httpPort = in.readInt();
     this.failures = in.readInt();
     this.maxMapTasks = in.readInt();
     this.maxReduceTasks = in.readInt();
+    
+    //reading the temperature value
+    this.coreAverageTemperatureReading=in.readFloat();
+    
     resStatus.readFields(in);
     taskReports.clear();
     int numTasks = in.readInt();

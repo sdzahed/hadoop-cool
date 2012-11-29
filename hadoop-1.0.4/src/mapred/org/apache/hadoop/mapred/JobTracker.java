@@ -3488,7 +3488,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
         	
         	
             float heatThreshold = conf.getFloat("mapred.jobtracker.CoolScheduling.Threshold", 25.0f);
-            float nodeTemp =  calculateAverageTemperatureReading( status.getTemperatureReadings());
+            float nodeTemp =   status.getTemperatureReading();
             float heatDiff = nodeTemp <= clusterAvgTemperature ? 0.0f : 
                                          nodeTemp - clusterAvgTemperature;
 
@@ -3682,7 +3682,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
     /* TODO this is a crude way to get the number of trackers and it might
        be wrong. Figure out the correct way! */
-    float newTemp = calculateAverageTemperatureReading(trackerStatus.getTemperatureReadings());
+    float newTemp = trackerStatus.getTemperatureReading();
     clusterAvgTemperature = (clusterAvgTemperature * 
                             trackerTemperatures.size() - oldTemp + newTemp) /
                             (trackerTemperatures.size() + (oldTemp > 0 ? 0 : 1));
@@ -3690,20 +3690,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
     trackerTemperatures.put(trackerStatus.getTrackerName(), newTemp);
   }
   
-  /*
-   * Calculates the average temperature reading of all the tasktracker cores
-   */
-  private float calculateAverageTemperatureReading(List<Integer> readings)
-  {
-	  int temperatureSum=0;
-	  
-	  for(Iterator<Integer> i=readings.iterator();i.hasNext();)
-	  {
-		  temperatureSum = temperatureSum + i.next();	  
-	  }
-	  
-	  return temperatureSum/readings.size();
-  }
+  
     
   /**
    * Process incoming heartbeat messages from the task trackers.
