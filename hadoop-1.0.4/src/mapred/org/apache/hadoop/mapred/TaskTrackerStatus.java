@@ -675,14 +675,17 @@ public class TaskTrackerStatus implements Writable {
     out.writeInt(maxReduceTasks);
     resStatus.write(out);
     out.writeInt(taskReports.size());
-
+    
+    for (TaskStatus taskStatus : taskReports) 
+    {
+      TaskStatus.writeTaskStatus(out, taskStatus);
+    }
+    
+    getHealthStatus().write(out);
+    
     //writing the temperature value
     out.writeFloat(coreAverageTemperatureReading);
     
-    for (TaskStatus taskStatus : taskReports) {
-      TaskStatus.writeTaskStatus(out, taskStatus);
-    }
-    getHealthStatus().write(out);
   }
 
   public void readFields(DataInput in) throws IOException 
@@ -693,11 +696,7 @@ public class TaskTrackerStatus implements Writable {
     this.httpPort = in.readInt();
     this.failures = in.readInt();
     this.maxMapTasks = in.readInt();
-    this.maxReduceTasks = in.readInt();
-    
-    //reading the temperature value
-    this.coreAverageTemperatureReading=in.readFloat();
-    
+    this.maxReduceTasks = in.readInt(); 
     resStatus.readFields(in);
     taskReports.clear();
     int numTasks = in.readInt();
@@ -705,6 +704,12 @@ public class TaskTrackerStatus implements Writable {
     for (int i = 0; i < numTasks; i++) {
       taskReports.add(TaskStatus.readTaskStatus(in));
     }
+    
     getHealthStatus().readFields(in);
+    
+    //reading the temperature value
+    this.coreAverageTemperatureReading=in.readFloat();
+    
+    
   }
 }
