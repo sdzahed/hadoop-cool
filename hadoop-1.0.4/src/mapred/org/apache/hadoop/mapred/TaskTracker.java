@@ -2299,11 +2299,16 @@ Runnable, TaskTrackerMXBean {
 		//Execute and parse the system command to extract the readings
 		try 
 		{ 
-			Process p=Runtime.getRuntime().exec("ssh -t -t nsuneja@localhost sudo /usr/bin/ipmitool sdr list"); 
+			//Process p=Runtime.getRuntime().exec("ssh -t -t nsuneja@localhost sudo /usr/bin/ipmitool sdr list"); 
+			Process p=Runtime.getRuntime().exec("ssh -t -t nsuneja@localhost ls"); 
 			p.waitFor(); 
 			
 			BufferedReader reader=new BufferedReader(new InputStreamReader(p.getErrorStream())); 
 			String line=reader.readLine(); 
+			if(line == null)
+			{
+				LOG.info("Empty error input!");
+			}
 			
 			while(line!=null)
 			{
