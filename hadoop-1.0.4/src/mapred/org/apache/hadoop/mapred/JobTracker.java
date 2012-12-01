@@ -3680,11 +3680,9 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
   private void updateTrackerTemperature(float oldTemp, float newTemp,
                                         boolean alreadyPresent) {
-    /* TODO this is a crude way to get the number of trackers and it might
-       be wrong. Figure out the correct way! */
     clusterAvgTemperature = (clusterAvgTemperature * 
                             (taskTrackers.size() + (alreadyPresent ? 0 : -1)) - oldTemp + newTemp) /
-                            (taskTrackers.size());
+                            taskTrackers.size();
   }
   
   
