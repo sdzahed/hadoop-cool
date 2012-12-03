@@ -2160,7 +2160,6 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
   private QueueManager queueManager;
 
-  private Map<String, Float> trackerTemperatures = new HashMap<String, Float> ();
   private float clusterAvgTemperature = 0.0f;
 
   /**
@@ -3536,9 +3535,20 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
    */
   private boolean updateTaskTrackerStatus(String trackerName,
                                           TaskTrackerStatus status) {
+    float oldTemp = 0, newTemp = 0;
     TaskTracker tt = getTaskTracker(trackerName);
     TaskTrackerStatus oldStatus = (tt == null) ? null : tt.getStatus();
+
+    boolean alreadyPresent = false;
+    TaskTracker taskTracker = taskTrackers.get(trackerName);
+    if (taskTracker != null) {
+        alreadyPresent = true;
+    } else {
+        taskTracker = new TaskTracker(trackerName);
+    }
+
     if (oldStatus != null) {
+      oldTemp = oldStatus.getTemperatureReading();
       totalMaps -= oldStatus.countMapTasks();
       totalReduces -= oldStatus.countReduceTasks();
       occupiedMapSlots -= oldStatus.countOccupiedMapSlots();
@@ -3569,6 +3579,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
       }
     }
     if (status != null) {
+      newTemp = status.getTemperatureReading();
       totalMaps += status.countMapTasks();
       totalReduces += status.countReduceTasks();
       occupiedMapSlots += status.countOccupiedMapSlots();
@@ -3582,13 +3593,6 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
         totalMapTaskCapacity += mapSlots;
         int reduceSlots = status.getMaxReduceSlots();
         totalReduceTaskCapacity += reduceSlots;
-      }
-      boolean alreadyPresent = false;
-      TaskTracker taskTracker = taskTrackers.get(trackerName);
-      if (taskTracker != null) {
-        alreadyPresent = true;
-      } else {
-        taskTracker = new TaskTracker(trackerName);
       }
       
       taskTracker.setStatus(status);
@@ -3641,6 +3645,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
     }
     getInstrumentation().setMapSlots(totalMapTaskCapacity);
     getInstrumentation().setReduceSlots(totalReduceTaskCapacity);
+    updateTrackerTemperature(oldTemp, newTemp, alreadyPresent);
     return oldStatus != null;
   }
   
@@ -3669,25 +3674,15 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
     TaskTrackerHealthStatus status = trackerStatus.getHealthStatus();
     synchronized (faultyTrackers) {
       faultyTrackers.setNodeHealthStatus(trackerStatus.getHost(), 
-          status.isNodeHealthy(), status.getHealthReport(), timeStamp);
+              status.isNodeHealthy(), status.getHealthReport(), timeStamp);
     }
+  }
 
-    // Update Heat Data
-    float oldTemp;
-    if (trackerTemperatures.containsKey(trackerStatus.getTrackerName())) {
-        oldTemp = trackerTemperatures.get(trackerStatus.getTrackerName());
-    } else {
-        oldTemp = 0.0f;
-    }
-
-    /* TODO this is a crude way to get the number of trackers and it might
-       be wrong. Figure out the correct way! */
-    float newTemp = trackerStatus.getTemperatureReading();
+  private void updateTrackerTemperature(float oldTemp, float newTemp,
+                                        boolean alreadyPresent) {
     clusterAvgTemperature = (clusterAvgTemperature * 
-                            trackerTemperatures.size() - oldTemp + newTemp) /
-                            (trackerTemperatures.size() + (oldTemp > 0 ? 0 : 1));
-    
-    trackerTemperatures.put(trackerStatus.getTrackerName(), newTemp);
+                            (taskTrackers.size() + (alreadyPresent ? 0 : -1)) - oldTemp + newTemp) /
+                            taskTrackers.size();
   }
   
   
