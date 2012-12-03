@@ -2325,7 +2325,12 @@ Runnable, TaskTrackerMXBean {
 				LOG.debug("Empty input!");
 			}
 			
-			while(line!=null) 
+			LOG.debug("line:" + line);
+			String[] tokens = line.split("\\|");
+			Scanner scan = new Scanner(tokens[1]);
+			temperatureReadings.add(scan.nextInt());
+			
+			/*while(line!=null) 
 			{
 				LOG.debug("line:" + line);
 				String[] tokens = line.split("\\|");
@@ -2341,7 +2346,7 @@ Runnable, TaskTrackerMXBean {
 				}
 				
 				line=reader.readLine(); 
-			} 
+			}*/ 
 					
 
 		} 
