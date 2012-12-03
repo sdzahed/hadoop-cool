@@ -337,13 +337,15 @@ public class TeraGen extends Configured implements Tool {
   /**
    * @param args the cli arguments
    */
-  public int run(String[] args) throws IOException {
+  public int run(String[] args) throws IOException 
+  {
     JobConf job = (JobConf) getConf();
     setNumberOfRows(job, Long.parseLong(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
     job.setJobName("TeraGen");
     job.setJarByClass(TeraGen.class);
     job.setMapperClass(SortGenMapper.class);
+    job.setNumMapTasks(10);
     job.setNumReduceTasks(0);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
