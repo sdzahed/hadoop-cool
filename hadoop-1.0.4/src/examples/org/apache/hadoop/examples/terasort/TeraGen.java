@@ -345,7 +345,10 @@ public class TeraGen extends Configured implements Tool {
     job.setJobName("TeraGen");
     job.setJarByClass(TeraGen.class);
     job.setMapperClass(SortGenMapper.class);
+    
+    //added by nsuneja
     job.setNumMapTasks(100);
+    
     job.setNumReduceTasks(0);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);

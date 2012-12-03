@@ -223,7 +223,8 @@ public class TeraSort extends Configured implements Tool {
     
   }
   
-  public int run(String[] args) throws Exception {
+  public int run(String[] args) throws Exception 
+  {
     LOG.info("starting");
     JobConf job = (JobConf) getConf();
     Path inputDir = new Path(args[0]);
@@ -234,6 +235,10 @@ public class TeraSort extends Configured implements Tool {
     TeraInputFormat.setInputPaths(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
     job.setJobName("TeraSort");
+    
+    //added by nsuneja
+    job.setNumReduceTasks((int)(1.75*13*2));
+    
     job.setJarByClass(TeraSort.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
