@@ -250,6 +250,9 @@ public class TestDFSIO extends Configured implements Tool {
     job.setMapperClass(mapperClass);
     job.setReducerClass(AccumulatingReducer.class);
 
+    //added by nsuneja
+    job.setNumReduceTasks((int)(1.75*13*2));
+    
     FileOutputFormat.setOutputPath(job, outputDir);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
