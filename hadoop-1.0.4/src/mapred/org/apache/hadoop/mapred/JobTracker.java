@@ -166,6 +166,16 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
 
   // Basically TRACKER_FAULT_TIMEOUT_WINDOW / TRACKER_FAULT_BUCKET_WIDTH .
   private int NUM_FAULT_BUCKETS;
+  
+  
+  //Cool Scheduling decision statistics
+  private long hot_task_tracker_count;
+  
+  //total no. of decisions
+  private long schedulable_task_tracker_count;
+  
+  //cool scheduling hit ratio
+  private double cool_scheduling_hit_ratio; 
 
   /** the maximum allowed size of the jobconf **/
   long MAX_JOBCONF_SIZE = 5*1024*1024L;
@@ -3403,14 +3413,30 @@ public class JobTracker implements MRConstants, InterTrackerProtocol,
       } 
       else 
       {
+    	
+    	//the task tracker is schedulable
+    	schedulable_task_tracker_count++;
+    	
         List<Task> tasks = null;
         if (!isTaskTrackerTooHot(taskTrackerStatus)) 
-        {
+        {    	
             tasks = getSetupAndCleanupTasks(taskTrackerStatus);
             if (tasks == null ) {
                 tasks = taskScheduler.assignTasks(taskTrackers.get(trackerName));
             }
         }
+        else
+        {	
+        	hot_task_tracker_count++;
+        	cool_scheduling_hit_ratio = hot_task_tracker_count/schedulable_task_tracker_count;
+        	
+        	LOG.info("schedulable task tracker count:" + schedulable_task_tracker_count);
+        	LOG.info("hot task tracker count:" + hot_task_tracker_count);
+        	
+        	LOG.info("cool scheduling hit ratio:" +  cool_scheduling_hit_ratio);
+        }
+        
+        
         if (tasks != null) {
           for (Task task : tasks) {
             expireLaunchingTasks.addNewTask(task.getTaskID());
